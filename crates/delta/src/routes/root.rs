@@ -158,6 +158,8 @@ pub struct BuildInformation {
 pub struct RevoltConfig {
     /// Revolt API Version
     pub revolt: String,
+    /// Apricotter
+    pub apricotter: bool,
     /// Features enabled on this Revolt node
     pub features: RevoltFeatures,
     /// WebSocket URL
@@ -180,6 +182,7 @@ pub async fn root() -> Result<Json<RevoltConfig>> {
 
     Ok(Json(RevoltConfig {
         revolt: env!("CARGO_PKG_VERSION").to_string(),
+        apricotter: true,
         features: RevoltFeatures {
             captcha: CaptchaFeature {
                 enabled: !config.api.security.captcha.hcaptcha_key.is_empty(),
