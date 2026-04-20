@@ -51,3 +51,6 @@ fred = { version = "8.0.1", features = ["subscriber-client"] }
 
 # force vendored openssl for musl cross-compilation
 openssl = { version = "*", features = ["vendored"] }
+
+# enable TLS for redis-kiss (which depends on redis without TLS features)
+redis = { version = "0.23", features = ["tls-native-tls"] }
