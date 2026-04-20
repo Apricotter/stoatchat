@@ -48,3 +48,6 @@ revolt-presence = { path = "../core/presence", features = ["redis-is-patched"] }
 
 # redis
 fred = { version = "8.0.1", features = ["subscriber-client"] }
+
+# force vendored openssl for musl cross-compilation
+openssl = { version = "*", features = ["vendored"] }
