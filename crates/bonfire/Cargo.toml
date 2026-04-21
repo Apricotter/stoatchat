@@ -49,4 +49,7 @@ revolt-presence = { path = "../core/presence" }
 # redis
 fred = { version = "8.0.1", features = ["subscriber-client"] }
 
+# vendored openssl for musl — sentry pulls in openssl-sys
+openssl = { version = "*", features = ["vendored"] }
+
 
