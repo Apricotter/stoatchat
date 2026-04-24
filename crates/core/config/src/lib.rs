@@ -140,10 +140,35 @@ pub struct Hosts {
     pub livekit: HashMap<String, String>,
 }
 
+fn deserialize_csv_or_seq<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::de::{self, SeqAccess, Visitor};
+    struct CsvOrSeq;
+    impl<'de> Visitor<'de> for CsvOrSeq {
+        type Value = Vec<String>;
+        fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            write!(f, "a sequence or comma-separated string")
+        }
+        fn visit_str<E: de::Error>(self, v: &str) -> Result<Vec<String>, E> {
+            Ok(v.split(',').map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect())
+        }
+        fn visit_seq<A: SeqAccess<'de>>(self, mut seq: A) -> Result<Vec<String>, A::Error> {
+            let mut v = Vec::new();
+            while let Some(s) = seq.next_element::<String>()? {
+                v.push(s);
+            }
+            Ok(v)
+        }
+    }
+    deserializer.deserialize_any(CsvOrSeq)
+}
+
 #[derive(Deserialize, Debug, Clone)]
 pub struct ApiRegistration {
     pub invite_only: bool,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "deserialize_csv_or_seq")]
     pub entry_codes: Vec<String>,
 }
 
