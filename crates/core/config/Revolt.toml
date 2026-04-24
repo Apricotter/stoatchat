@@ -37,6 +37,8 @@ password = "rabbitpass"
 # Whether an invite should be required for registration
 # See https://github.com/stoatchat/self-hosted#making-your-instance-invite-only
 invite_only = false
+# Entry codes required to complete registration (empty = no gate)
+entry_codes = []
 
 [api.smtp]
 # Email server configuration for verification

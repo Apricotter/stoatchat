@@ -59,6 +59,7 @@ pub enum ErrorType {
 
     // ? Onboarding related errors
     AlreadyOnboarded,
+    InvalidEntryCode,
 
     // ? User related errors
     UsernameTaken,

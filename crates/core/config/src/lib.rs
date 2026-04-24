@@ -143,6 +143,8 @@ pub struct Hosts {
 #[derive(Deserialize, Debug, Clone)]
 pub struct ApiRegistration {
     pub invite_only: bool,
+    #[serde(default)]
+    pub entry_codes: Vec<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]

@@ -1,6 +1,7 @@
 use authifier::models::Session;
 use once_cell::sync::Lazy;
 use regex::Regex;
+use revolt_config::config;
 use revolt_database::{Database, User};
 use revolt_models::v0;
 use revolt_result::{create_error, Result};
@@ -21,6 +22,8 @@ pub struct DataOnboard {
     /// New username which will be used to identify the user on the platform
     #[validate(length(min = 2, max = 32), regex = "RE_USERNAME")]
     username: String,
+    /// Entry code required when the server has registration gating enabled
+    entry_code: Option<String>,
 }
 
 /// # Complete Onboarding
@@ -44,6 +47,14 @@ pub async fn complete(
             error: error.to_string()
         })
     })?;
+
+    let cfg = config().await;
+    if !cfg.api.registration.entry_codes.is_empty() {
+        match &data.entry_code {
+            Some(code) if cfg.api.registration.entry_codes.contains(code) => {}
+            _ => return Err(create_error!(InvalidEntryCode)),
+        }
+    }
 
     Ok(Json(
         User::create(db, data.username, session.user_id, None)
