@@ -316,6 +316,18 @@ impl AbstractUsers for MongoDb {
             .map_err(|_| create_database_error!("update_one", COL))
     }
 
+    /// Fetch all users (privileged admin use only)
+    async fn fetch_all_users(&self) -> Result<Vec<User>> {
+        Ok(self
+            .col::<User>(COL)
+            .find(doc! {})
+            .await
+            .map_err(|_| create_database_error!("find", COL))?
+            .filter_map(|s| async { s.ok() })
+            .collect()
+            .await)
+    }
+
     /// Delete a user by their id
     async fn delete_user(&self, id: &str) -> Result<()> {
         query!(self, delete_one_by_id, COL, id).map(|_| ())

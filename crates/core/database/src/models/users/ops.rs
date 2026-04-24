@@ -58,6 +58,9 @@ pub trait AbstractUsers: Sync + Send {
     /// Remove relationship with another user
     async fn pull_relationship(&self, user_id: &str, target_id: &str) -> Result<()>;
 
+    /// Fetch all users (privileged admin use only)
+    async fn fetch_all_users(&self) -> Result<Vec<User>>;
+
     /// Delete a user by their id
     async fn delete_user(&self, id: &str) -> Result<()>;
 

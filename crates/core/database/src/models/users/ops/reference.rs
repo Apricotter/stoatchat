@@ -155,6 +155,12 @@ impl AbstractUsers for ReferenceDb {
         Ok(())
     }
 
+    /// Fetch all users (privileged admin use only)
+    async fn fetch_all_users(&self) -> Result<Vec<User>> {
+        let users = self.users.lock().await;
+        Ok(users.values().cloned().collect())
+    }
+
     /// Delete a user by their id
     async fn delete_user(&self, id: &str) -> Result<()> {
         let mut users = self.users.lock().await;

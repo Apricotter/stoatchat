@@ -12,6 +12,7 @@ mod fetch_user;
 mod fetch_user_flags;
 mod find_mutual;
 mod get_default_avatar;
+mod list_all;
 mod open_dm;
 mod remove_friend;
 mod send_friend_request;
@@ -22,6 +23,7 @@ pub fn routes() -> (Vec<Route>, OpenApi) {
         // User Information
         fetch_self::fetch,
         fetch_user::fetch,
+        list_all::list_all,
         fetch_user_flags::fetch_user_flags,
         edit_user::edit,
         change_username::change_username,

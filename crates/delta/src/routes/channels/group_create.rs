@@ -27,11 +27,13 @@ pub async fn create_group(
         })
     })?;
 
-    for target in &data.users {
-        match user.relationship_with(target) {
-            RelationshipStatus::Friend | RelationshipStatus::User => {}
-            _ => {
-                return Err(create_error!(NotFriends));
+    if !user.privileged {
+        for target in &data.users {
+            match user.relationship_with(target) {
+                RelationshipStatus::Friend | RelationshipStatus::User => {}
+                _ => {
+                    return Err(create_error!(NotFriends));
+                }
             }
         }
     }
