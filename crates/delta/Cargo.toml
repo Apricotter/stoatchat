@@ -73,7 +73,6 @@ authifier = "1.0.16"
 revolt-config = { path = "../core/config" }
 revolt-database = { path = "../core/database", features = [
     "rocket-impl",
-    "redis-is-patched",
     "voice",
 ] }
 revolt-models = { path = "../core/models", features = [
