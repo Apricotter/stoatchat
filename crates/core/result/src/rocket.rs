@@ -15,6 +15,7 @@ impl<'r> Responder<'r, 'static> for Error {
             ErrorType::LabelMe => Status::InternalServerError,
 
             ErrorType::AlreadyOnboarded => Status::Forbidden,
+            ErrorType::InvalidEntryCode => Status::Forbidden,
 
             ErrorType::UnknownUser => Status::NotFound,
             ErrorType::InvalidUsername => Status::BadRequest,

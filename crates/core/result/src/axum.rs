@@ -9,6 +9,7 @@ impl IntoResponse for Error {
             ErrorType::LabelMe => StatusCode::INTERNAL_SERVER_ERROR,
 
             ErrorType::AlreadyOnboarded => StatusCode::FORBIDDEN,
+            ErrorType::InvalidEntryCode => StatusCode::FORBIDDEN,
 
             ErrorType::UnknownUser => StatusCode::NOT_FOUND,
             ErrorType::InvalidUsername => StatusCode::BAD_REQUEST,
