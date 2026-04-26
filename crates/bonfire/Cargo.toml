@@ -47,7 +47,7 @@ revolt-permissions = { path = "../core/permissions" }
 revolt-presence = { path = "../core/presence" }
 
 # redis
-fred = { version = "8.0.1", features = ["subscriber-client"] }
+fred = { version = "8.0.1", features = ["subscriber-client", "enable-rustls"] }
 
 # vendored openssl for musl — sentry pulls in openssl-sys
 openssl = { version = "*", features = ["vendored"] }
