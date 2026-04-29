@@ -3,13 +3,14 @@ use revolt_result::{create_error, Result};
 use rocket::{serde::json::Json, State};
 use serde::{Deserialize, Serialize};
 
-const SIGNUP_BASE: &str = "https://app.apricotter.com/signup";
+const SIGNUP_BASE: &str = "https://hub2.apricotter.com/signup";
 
 #[derive(Deserialize, JsonSchema)]
 pub struct DataCreateInvitation {
     email: String,
     vertical: Option<String>,
     metadata: Option<serde_json::Value>,
+    signup_base: Option<String>,
 }
 
 #[derive(Serialize, JsonSchema)]
@@ -42,8 +43,9 @@ pub async fn create_invitation(
     );
     db.insert_invitation(&invitation).await?;
 
+    let base = data.signup_base.as_deref().unwrap_or(SIGNUP_BASE);
     let encoded_email = urlencoding::encode(&data.email).into_owned();
-    let signup_url = format!("{SIGNUP_BASE}?code={}&email={encoded_email}", invitation.code);
+    let signup_url = format!("{base}?code={}&email={encoded_email}", invitation.code);
 
     Ok(Json(InvitationResponse {
         code: invitation.code,
