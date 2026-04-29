@@ -109,7 +109,12 @@ static CONFIG_BUILDER: Lazy<RwLock<Config>> = Lazy::new(|| {
             cwd = path.parent();
         }
 
-        builder = builder.add_source(Environment::with_prefix("REVOLT").separator("__"));
+        builder = builder.add_source(
+            Environment::with_prefix("REVOLT")
+                .separator("__")
+                .try_parsing(true)
+                .list_separator(","),
+        );
 
         builder.build().unwrap()
     })
