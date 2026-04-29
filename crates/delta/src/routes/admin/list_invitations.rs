@@ -11,6 +11,10 @@ pub struct InvitationRecord {
     pub used: bool,
     pub used_by: Option<String>,
     pub created_at: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vertical: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<serde_json::Value>,
 }
 
 /// # List Invitations
@@ -37,6 +41,8 @@ pub async fn list_invitations(
             used: inv.used,
             used_by: inv.used_by,
             created_at: inv.created_at.to_string(),
+            vertical: inv.vertical,
+            metadata: inv.metadata,
         })
         .collect();
 

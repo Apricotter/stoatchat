@@ -8,6 +8,8 @@ const SIGNUP_BASE: &str = "https://app.apricotter.com/signup";
 #[derive(Deserialize, JsonSchema)]
 pub struct DataCreateInvitation {
     email: String,
+    vertical: Option<String>,
+    metadata: Option<serde_json::Value>,
 }
 
 #[derive(Serialize, JsonSchema)]
@@ -32,7 +34,12 @@ pub async fn create_invitation(
     }
 
     let data = data.into_inner();
-    let invitation = Invitation::new(data.email.clone(), user.id.clone());
+    let invitation = Invitation::new(
+        data.email.clone(),
+        user.id.clone(),
+        data.vertical,
+        data.metadata,
+    );
     db.insert_invitation(&invitation).await?;
 
     let encoded_email = urlencoding::encode(&data.email).into_owned();
