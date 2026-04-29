@@ -44,8 +44,7 @@ pub async fn create_invitation(
     db.insert_invitation(&invitation).await?;
 
     let base = data.signup_base.as_deref().unwrap_or(SIGNUP_BASE);
-    let encoded_email = urlencoding::encode(&data.email).into_owned();
-    let signup_url = format!("{base}?code={}&email={encoded_email}", invitation.code);
+    let signup_url = format!("{base}?code={}", invitation.code);
 
     Ok(Json(InvitationResponse {
         code: invitation.code,
