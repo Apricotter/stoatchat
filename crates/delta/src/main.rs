@@ -8,6 +8,27 @@ extern crate serde_json;
 pub mod routes;
 pub mod util;
 
+struct ErrorLogger;
+
+#[rocket::async_trait]
+impl rocket::fairing::Fairing for ErrorLogger {
+    fn info(&self) -> rocket::fairing::Info {
+        rocket::fairing::Info {
+            name: "Error Logger",
+            kind: rocket::fairing::Kind::Response,
+        }
+    }
+
+    async fn on_response<'r>(&self, req: &'r rocket::Request<'_>, res: &mut rocket::Response<'r>) {
+        let status = res.status().code;
+        if status >= 400 {
+            let body = res.body_mut().to_string().await.unwrap_or_default();
+            log::error!("ERROR {} {} => {}", status, req.uri(), body);
+            res.set_sized_body(body.len(), std::io::Cursor::new(body));
+        }
+    }
+}
+
 use revolt_config::config;
 use revolt_database::events::client::EventV1;
 use revolt_database::AMQP;
@@ -161,6 +182,7 @@ pub async fn web() -> Rocket<Build> {
         .manage(voice_client)
         .manage(ratelimits)
         .attach(ratelimiter::RatelimitFairing)
+        .attach(ErrorLogger)
         .attach(cors)
         .configure(rocket::Config {
             limits: rocket::data::Limits::default().limit("string", 5.megabytes()),
