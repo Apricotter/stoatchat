@@ -1,7 +1,6 @@
 use authifier::models::Session;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use revolt_config::config;
 use revolt_database::{Database, User};
 use revolt_models::v0;
 use revolt_result::{create_error, Result};
@@ -48,18 +47,14 @@ pub async fn complete(
         })
     })?;
 
-    let cfg = config().await;
-    if !cfg.api.registration.entry_codes.is_empty() {
-        match &data.entry_code {
-            Some(code) if cfg.api.registration.entry_codes.contains(code) => {}
-            _ => return Err(create_error!(InvalidEntryCode)),
-        }
+    let code = data.entry_code.as_deref().ok_or_else(|| create_error!(InvalidEntryCode))?;
+    let invitation = db.fetch_invitation(code).await.map_err(|_| create_error!(InvalidEntryCode))?;
+    if invitation.used {
+        return Err(create_error!(InvalidEntryCode));
     }
 
-    Ok(Json(
-        User::create(db, data.username, session.user_id, None)
-            .await?
-            .into_self(false)
-            .await,
-    ))
+    let user = User::create(db, data.username, session.user_id.clone(), None).await?;
+    db.mark_invitation_used(code, &user.id).await?;
+
+    Ok(Json(user.into_self(false).await))
 }

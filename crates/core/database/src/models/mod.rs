@@ -1,6 +1,7 @@
 mod admin_migrations;
 mod bots;
 mod channel_invites;
+mod invitations;
 mod channel_unreads;
 mod channel_webhooks;
 mod channels;
@@ -22,6 +23,7 @@ pub use admin_migrations::*;
 pub use bots::*;
 pub use channel_invites::*;
 pub use channel_unreads::*;
+pub use invitations::*;
 pub use channel_webhooks::*;
 pub use channels::*;
 pub use emojis::*;
@@ -51,6 +53,7 @@ pub trait AbstractDatabase:
     + channels::AbstractChannels
     + channel_invites::AbstractChannelInvites
     + channel_unreads::AbstractChannelUnreads
+    + invitations::AbstractInvitations
     + channel_webhooks::AbstractWebhooks
     + emojis::AbstractEmojis
     + file_hashes::AbstractAttachmentHashes

@@ -4,6 +4,7 @@ pub use rocket::http::Status;
 pub use rocket::response::Redirect;
 use rocket::{Build, Rocket};
 
+mod admin;
 mod bots;
 mod channels;
 mod customisation;
@@ -40,6 +41,7 @@ pub fn mount(config: Settings, mut rocket: Rocket<Build>) -> Rocket<Build> {
             "/policy" => policy::routes(),
             "/push" => push::routes(),
             "/sync" => sync::routes(),
+            "/admin" => admin::routes(),
             "/webhooks" => webhooks::routes()
         };
     } else {
@@ -60,7 +62,8 @@ pub fn mount(config: Settings, mut rocket: Rocket<Build>) -> Rocket<Build> {
             "/onboard" => onboard::routes(),
             "/policy" => policy::routes(),
             "/push" => push::routes(),
-            "/sync" => sync::routes()
+            "/sync" => sync::routes(),
+            "/admin" => admin::routes()
         };
     }
 
@@ -82,6 +85,7 @@ pub fn mount(config: Settings, mut rocket: Rocket<Build>) -> Rocket<Build> {
             "/onboard" => onboard::routes(),
             "/push" => push::routes(),
             "/sync" => sync::routes(),
+            "/admin" => admin::routes(),
             "/webhooks" => webhooks::routes()
         };
     } else {
@@ -101,7 +105,8 @@ pub fn mount(config: Settings, mut rocket: Rocket<Build>) -> Rocket<Build> {
             "/auth/mfa" => rocket_authifier::routes::mfa::routes(),
             "/onboard" => onboard::routes(),
             "/push" => push::routes(),
-            "/sync" => sync::routes()
+            "/sync" => sync::routes(),
+            "/admin" => admin::routes()
         };
     }
 

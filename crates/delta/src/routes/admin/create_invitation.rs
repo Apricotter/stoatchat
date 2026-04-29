@@ -1,0 +1,46 @@
+use revolt_database::{Database, Invitation, User};
+use revolt_result::{create_error, Result};
+use rocket::{serde::json::Json, State};
+use serde::{Deserialize, Serialize};
+
+const SIGNUP_BASE: &str = "https://app.apricotter.com/signup";
+
+#[derive(Deserialize, JsonSchema)]
+pub struct DataCreateInvitation {
+    email: String,
+}
+
+#[derive(Serialize, JsonSchema)]
+pub struct InvitationResponse {
+    pub code: String,
+    pub email: String,
+    pub signup_url: String,
+}
+
+/// # Create Invitation
+///
+/// Generate a single-use signup invitation for an email address. Requires privileged access.
+#[openapi(tag = "Admin")]
+#[post("/invitations", data = "<data>")]
+pub async fn create_invitation(
+    db: &State<Database>,
+    user: User,
+    data: Json<DataCreateInvitation>,
+) -> Result<Json<InvitationResponse>> {
+    if !user.privileged {
+        return Err(create_error!(NotPrivileged));
+    }
+
+    let data = data.into_inner();
+    let invitation = Invitation::new(data.email.clone(), user.id.clone());
+    db.insert_invitation(&invitation).await?;
+
+    let encoded_email = urlencoding::encode(&data.email).into_owned();
+    let signup_url = format!("{SIGNUP_BASE}?code={}&email={encoded_email}", invitation.code);
+
+    Ok(Json(InvitationResponse {
+        code: invitation.code,
+        email: data.email,
+        signup_url,
+    }))
+}
