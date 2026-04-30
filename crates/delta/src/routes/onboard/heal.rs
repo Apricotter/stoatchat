@@ -59,7 +59,7 @@ pub async fn heal(
         &mut server,
         DataCreateServerChannel {
             channel_type: LegacyServerChannelType::Text,
-            name: user.username.to_lowercase(),
+            name: "onboarding".to_string(),
             ..Default::default()
         },
         true,

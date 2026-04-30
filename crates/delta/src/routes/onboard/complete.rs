@@ -71,13 +71,12 @@ pub async fn complete(
     )
     .await?;
 
-    // Client-named channel comes first (their primary general channel)
     let _ = Channel::create_server_channel(
         db,
         &mut server,
         DataCreateServerChannel {
             channel_type: LegacyServerChannelType::Text,
-            name: user.username.to_lowercase(),
+            name: "onboarding".to_string(),
             ..Default::default()
         },
         true,
