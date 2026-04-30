@@ -136,7 +136,7 @@ pub async fn complete(
                     .send(
                         db,
                         Some(amqp),
-                        MessageAuthor::User(&bot_v0),
+                        MessageAuthor::User(&bot_v0.clone()),
                         Some(bot_v0),
                         None,
                         &bot_channel,
