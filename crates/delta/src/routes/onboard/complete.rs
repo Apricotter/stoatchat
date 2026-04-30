@@ -1,9 +1,10 @@
 use authifier::models::Session;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use revolt_database::{Database, User};
-use revolt_models::v0;
+use revolt_database::{Channel, Database, Member, Message, Server, User, AMQP};
+use revolt_models::v0::{self, DataCreateServer, DataCreateServerChannel, LegacyServerChannelType, MessageAuthor};
 use revolt_result::{create_error, Result};
+use ulid::Ulid;
 
 use rocket::{serde::json::Json, State};
 use serde::{Deserialize, Serialize};
@@ -32,6 +33,7 @@ pub struct DataOnboard {
 #[post("/complete", data = "<data>")]
 pub async fn complete(
     db: &State<Database>,
+    amqp: &State<AMQP>,
     session: Session,
     user: Option<User>,
     data: Json<DataOnboard>,
@@ -53,8 +55,97 @@ pub async fn complete(
         return Err(create_error!(InvalidEntryCode));
     }
 
-    let user = User::create(db, data.username, session.user_id.clone(), None).await?;
+    let user = User::create(db, data.username.clone(), session.user_id.clone(), None).await?;
     db.mark_invitation_used(code, &user.id).await?;
+
+    // Create the client's dedicated studio server
+    let (mut server, _) = Server::create(
+        db,
+        DataCreateServer {
+            name: format!("{}'s Studio", user.username),
+            description: None,
+            nsfw: None,
+        },
+        &user,
+        false,
+    )
+    .await?;
+
+    // Client-named channel comes first (their primary general channel)
+    let _ = Channel::create_server_channel(
+        db,
+        &mut server,
+        DataCreateServerChannel {
+            channel_type: LegacyServerChannelType::Text,
+            name: user.username.to_lowercase(),
+            ..Default::default()
+        },
+        true,
+    )
+    .await;
+
+    // Bot channel — where the onboarding assistant lives
+    let bot_channel = Channel::create_server_channel(
+        db,
+        &mut server,
+        DataCreateServerChannel {
+            channel_type: LegacyServerChannelType::Text,
+            name: "bot".to_string(),
+            ..Default::default()
+        },
+        true,
+    )
+    .await;
+
+    // Remaining studio channels
+    for name in &["strategies", "content", "approvals", "review", "documents"] {
+        let _ = Channel::create_server_channel(
+            db,
+            &mut server,
+            DataCreateServerChannel {
+                channel_type: LegacyServerChannelType::Text,
+                name: name.to_string(),
+                ..Default::default()
+            },
+            true,
+        )
+        .await;
+    }
+
+    // Add the client as a member of their studio
+    let _ = Member::create(db, &server, &user, None).await;
+
+    // Add the system bot and send the welcome message in the bot channel
+    if let (Ok(bot_token), Ok(bot_channel)) = (std::env::var("APRICOTTER_BOT_TOKEN"), bot_channel) {
+        if let Ok(bot) = db.fetch_bot_by_token(&bot_token).await {
+            if let Ok(bot_user) = db.fetch_user(&bot.id).await {
+                let _ = Member::create(db, &server, &bot_user, None).await;
+
+                let bot_v0: v0::User = bot_user.clone().into(db, Some(&bot_user)).await;
+                let mut message = Message {
+                    id: Ulid::new().to_string(),
+                    channel: bot_channel.id().to_string(),
+                    author: bot_user.id.clone(),
+                    content: Some(format!(
+                        "Hello {}! I'm your personal assistant. I'd like to help you complete onboarding.",
+                        user.username
+                    )),
+                    ..Default::default()
+                };
+                let _ = message
+                    .send(
+                        db,
+                        Some(amqp),
+                        MessageAuthor::User(&bot_v0),
+                        Some(bot_v0),
+                        None,
+                        &bot_channel,
+                        false,
+                    )
+                    .await;
+            }
+        }
+    }
 
     Ok(Json(user.into_self(false).await))
 }
