@@ -1,4 +1,3 @@
-use revolt_config::config;
 use revolt_database::{Database, Member, Server, User};
 use revolt_models::v0;
 use revolt_result::{create_error, Result};
@@ -21,21 +20,7 @@ pub async fn create_server(
         return Err(create_error!(IsBot));
     }
 
-    let config = config().await;
-
-    if !config
-        .features
-        .limits
-        .global
-        .restrict_server_creation
-        .is_empty()
-        && !config
-            .features
-            .limits
-            .global
-            .restrict_server_creation
-            .contains(&user.id)
-    {
+    if !user.privileged {
         return Err(create_error!(CantCreateServers));
     }
 
