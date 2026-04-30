@@ -90,7 +90,7 @@ pub async fn complete(
         &mut server,
         DataCreateServerChannel {
             channel_type: LegacyServerChannelType::Text,
-            name: "bot".to_string(),
+            name: "assistant".to_string(),
             ..Default::default()
         },
         true,
