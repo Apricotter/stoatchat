@@ -54,47 +54,22 @@ pub async fn heal(
 
     let server_id = server.id.clone();
 
-    let _ = Channel::create_server_channel(
+    // Only #start-here until onboarding completes
+    let start_here = Channel::create_server_channel(
         db,
         &mut server,
         DataCreateServerChannel {
             channel_type: LegacyServerChannelType::Text,
-            name: "onboarding".to_string(),
+            name: "start-here".to_string(),
             ..Default::default()
         },
         true,
     )
     .await;
-
-    let bot_channel = Channel::create_server_channel(
-        db,
-        &mut server,
-        DataCreateServerChannel {
-            channel_type: LegacyServerChannelType::Text,
-            name: "assistant".to_string(),
-            ..Default::default()
-        },
-        true,
-    )
-    .await;
-
-    for name in &["strategies", "content", "approvals", "review", "documents"] {
-        let _ = Channel::create_server_channel(
-            db,
-            &mut server,
-            DataCreateServerChannel {
-                channel_type: LegacyServerChannelType::Text,
-                name: name.to_string(),
-                ..Default::default()
-            },
-            true,
-        )
-        .await;
-    }
 
     let _ = Member::create(db, &server, &user, None).await;
 
-    if let (Ok(bot_token), Ok(bot_channel)) = (std::env::var("APRICOTTER_BOT_TOKEN"), bot_channel) {
+    if let (Ok(bot_token), Ok(bot_channel)) = (std::env::var("APRICOTTER_BOT_TOKEN"), start_here) {
         if let Ok(bot) = db.fetch_bot_by_token(&bot_token).await {
             if let Ok(bot_user) = db.fetch_user(&bot.id).await {
                 let _ = Member::create(db, &server, &bot_user, None).await;

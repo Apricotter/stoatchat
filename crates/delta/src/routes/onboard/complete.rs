@@ -71,51 +71,24 @@ pub async fn complete(
     )
     .await?;
 
-    let _ = Channel::create_server_channel(
+    // Only #start-here until onboarding completes
+    let start_here = Channel::create_server_channel(
         db,
         &mut server,
         DataCreateServerChannel {
             channel_type: LegacyServerChannelType::Text,
-            name: "onboarding".to_string(),
+            name: "start-here".to_string(),
             ..Default::default()
         },
         true,
     )
     .await;
-
-    // Bot channel — where the onboarding assistant lives
-    let bot_channel = Channel::create_server_channel(
-        db,
-        &mut server,
-        DataCreateServerChannel {
-            channel_type: LegacyServerChannelType::Text,
-            name: "assistant".to_string(),
-            ..Default::default()
-        },
-        true,
-    )
-    .await;
-
-    // Remaining studio channels
-    for name in &["strategies", "content", "approvals", "review", "documents"] {
-        let _ = Channel::create_server_channel(
-            db,
-            &mut server,
-            DataCreateServerChannel {
-                channel_type: LegacyServerChannelType::Text,
-                name: name.to_string(),
-                ..Default::default()
-            },
-            true,
-        )
-        .await;
-    }
 
     // Add the client as a member of their studio
     let _ = Member::create(db, &server, &user, None).await;
 
-    // Add the system bot and send the welcome message in the bot channel
-    if let (Ok(bot_token), Ok(bot_channel)) = (std::env::var("APRICOTTER_BOT_TOKEN"), bot_channel) {
+    // Add the system bot and send the welcome message in #start-here
+    if let (Ok(bot_token), Ok(bot_channel)) = (std::env::var("APRICOTTER_BOT_TOKEN"), start_here) {
         if let Ok(bot) = db.fetch_bot_by_token(&bot_token).await {
             if let Ok(bot_user) = db.fetch_user(&bot.id).await {
                 let _ = Member::create(db, &server, &bot_user, None).await;
