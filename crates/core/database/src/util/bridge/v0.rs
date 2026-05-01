@@ -798,6 +798,7 @@ impl From<Server> for crate::Server {
             discoverable: value.discoverable,
             vertical: value.vertical,
             intake_metadata: None,
+            onboarding_complete: value.onboarding_complete,
         }
     }
 }
@@ -853,9 +854,11 @@ impl From<PartialServer> for crate::PartialServer {
             discoverable: value.discoverable,
             vertical: value.vertical,
             intake_metadata: None,
+            onboarding_complete: value.onboarding_complete,
         }
     }
 }
+
 
 impl From<crate::FieldsServer> for FieldsServer {
     fn from(value: crate::FieldsServer) -> Self {

@@ -8,6 +8,7 @@ mod channel_create;
 mod emoji_list;
 mod greeting_fetch;
 mod invites_fetch;
+mod onboarding_complete;
 mod member_edit;
 mod member_experimental_query;
 mod member_fetch;
@@ -51,6 +52,7 @@ pub fn routes() -> (Vec<Route>, OpenApi) {
         permissions_set_default::set_default_server_permissions,
         emoji_list::list_emoji,
         roles_edit_positions::edit_role_ranks,
-        greeting_fetch::fetch_greeting
+        greeting_fetch::fetch_greeting,
+        onboarding_complete::complete_onboarding
     ]
 }

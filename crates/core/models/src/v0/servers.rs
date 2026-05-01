@@ -82,6 +82,12 @@ auto_derived_partial!(
         /// Client vertical for this studio (e.g. "author", "home_services")
         #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
         pub vertical: Option<String>,
+        /// Whether Otto has completed onboarding with this client
+        #[cfg_attr(
+            feature = "serde",
+            serde(skip_serializing_if = "crate::if_false", default)
+        )]
+        pub onboarding_complete: bool,
     },
     "PartialServer"
 );

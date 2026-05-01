@@ -68,6 +68,9 @@ auto_derived_partial!(
         /// Intake metadata captured at invite time (JSON string)
         #[serde(skip_serializing_if = "Option::is_none")]
         pub intake_metadata: Option<String>,
+        /// Whether Otto has completed onboarding with this client
+        #[serde(skip_serializing_if = "crate::if_false", default)]
+        pub onboarding_complete: bool,
     },
     "PartialServer"
 );
@@ -167,6 +170,7 @@ impl Server {
             system_messages: None,
             vertical: None,
             intake_metadata: None,
+            onboarding_complete: false,
         };
 
         let channels: Vec<Channel> = if create_default_channels {
