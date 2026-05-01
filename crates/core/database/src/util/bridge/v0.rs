@@ -768,6 +768,7 @@ impl From<crate::Server> for Server {
             analytics: value.analytics,
             discoverable: value.discoverable,
             vertical: value.vertical,
+            onboarding_complete: value.onboarding_complete,
         }
     }
 }
@@ -826,6 +827,7 @@ impl From<crate::PartialServer> for PartialServer {
             analytics: value.analytics,
             discoverable: value.discoverable,
             vertical: value.vertical,
+            onboarding_complete: value.onboarding_complete,
         }
     }
 }
