@@ -768,7 +768,6 @@ impl From<crate::Server> for Server {
             analytics: value.analytics,
             discoverable: value.discoverable,
             vertical: value.vertical,
-            intake_metadata: None,
         }
     }
 }
