@@ -78,6 +78,10 @@ auto_derived_partial!(
             serde(skip_serializing_if = "crate::if_false", default)
         )]
         pub discoverable: bool,
+
+        /// Client vertical for this studio (e.g. "author", "home_services")
+        #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+        pub vertical: Option<String>,
     },
     "PartialServer"
 );

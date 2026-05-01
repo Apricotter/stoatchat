@@ -1,7 +1,7 @@
 use authifier::models::Session;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use revolt_database::{Channel, Database, Member, Message, Server, User, AMQP};
+use revolt_database::{Channel, Database, Member, Message, PartialServer, Server, User, AMQP};
 use revolt_models::v0::{self, DataCreateServer, DataCreateServerChannel, LegacyServerChannelType, MessageAuthor};
 use revolt_result::{create_error, Result};
 use ulid::Ulid;
@@ -71,6 +71,20 @@ pub async fn complete(
     )
     .await?;
 
+    // Store the vertical on the server so Otto can look it up later
+    if invitation.vertical.is_some() {
+        let _ = server
+            .update(
+                db,
+                PartialServer {
+                    vertical: invitation.vertical.clone(),
+                    ..Default::default()
+                },
+                vec![],
+            )
+            .await;
+    }
+
     // Only #start-here until onboarding completes
     let start_here = Channel::create_server_channel(
         db,
@@ -93,15 +107,18 @@ pub async fn complete(
             if let Ok(bot_user) = db.fetch_user(&bot.id).await {
                 let _ = Member::create(db, &server, &bot_user, None).await;
 
+                let greeting_text = db
+                    .fetch_greeting(invitation.vertical.as_deref())
+                    .await
+                    .map(|g| g.message.replace("{username}", &user.username))
+                    .unwrap_or_else(|_| format!("Hey {}! Welcome to your studio.", user.username));
+
                 let bot_v0: v0::User = bot_user.clone().into(db, Some(&bot_user)).await;
                 let mut message = Message {
                     id: Ulid::new().to_string(),
                     channel: bot_channel.id().to_string(),
                     author: bot_user.id.clone(),
-                    content: Some(format!(
-                        "Hello {}! I'm your personal assistant. I'd like to help you complete onboarding.",
-                        user.username
-                    )),
+                    content: Some(greeting_text),
                     ..Default::default()
                 };
                 let _ = message

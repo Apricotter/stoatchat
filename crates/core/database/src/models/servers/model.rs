@@ -61,6 +61,10 @@ auto_derived_partial!(
         /// Whether this server should be publicly discoverable
         #[serde(skip_serializing_if = "crate::if_false", default)]
         pub discoverable: bool,
+
+        /// Client vertical for this studio (e.g. "author", "home_services")
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub vertical: Option<String>,
     },
     "PartialServer"
 );
@@ -158,6 +162,7 @@ impl Server {
             icon: None,
             roles: HashMap::new(),
             system_messages: None,
+            vertical: None,
         };
 
         let channels: Vec<Channel> = if create_default_channels {

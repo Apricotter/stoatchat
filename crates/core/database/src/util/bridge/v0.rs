@@ -767,6 +767,7 @@ impl From<crate::Server> for Server {
             nsfw: value.nsfw,
             analytics: value.analytics,
             discoverable: value.discoverable,
+            vertical: value.vertical,
         }
     }
 }
@@ -795,6 +796,7 @@ impl From<Server> for crate::Server {
             nsfw: value.nsfw,
             analytics: value.analytics,
             discoverable: value.discoverable,
+            vertical: value.vertical,
         }
     }
 }
@@ -821,6 +823,7 @@ impl From<crate::PartialServer> for PartialServer {
             nsfw: value.nsfw,
             analytics: value.analytics,
             discoverable: value.discoverable,
+            vertical: value.vertical,
         }
     }
 }
@@ -847,6 +850,7 @@ impl From<PartialServer> for crate::PartialServer {
             nsfw: value.nsfw,
             analytics: value.analytics,
             discoverable: value.discoverable,
+            vertical: value.vertical,
         }
     }
 }
