@@ -1,7 +1,7 @@
 use authifier::models::Session;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use revolt_database::{Channel, Database, Member, Message, PartialServer, Server, User, AMQP};
+use revolt_database::{AbstractGreetings, Channel, Database, FieldsServer, Member, Message, PartialServer, Server, User, AMQP};
 use revolt_models::v0::{self, DataCreateServer, DataCreateServerChannel, LegacyServerChannelType, MessageAuthor};
 use revolt_result::{create_error, Result};
 use ulid::Ulid;
@@ -71,16 +71,21 @@ pub async fn complete(
     )
     .await?;
 
-    // Store the vertical on the server so Otto can look it up later
-    if invitation.vertical.is_some() {
+    // Store the vertical and intake metadata on the server so Otto can look them up later
+    if invitation.vertical.is_some() || invitation.metadata.is_some() {
+        let intake_metadata = invitation
+            .metadata
+            .as_ref()
+            .and_then(|v| serde_json::to_string(v).ok());
         let _ = server
             .update(
                 db,
                 PartialServer {
                     vertical: invitation.vertical.clone(),
+                    intake_metadata,
                     ..Default::default()
                 },
-                vec![],
+                Vec::<FieldsServer>::new(),
             )
             .await;
     }

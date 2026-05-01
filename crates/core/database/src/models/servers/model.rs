@@ -65,6 +65,9 @@ auto_derived_partial!(
         /// Client vertical for this studio (e.g. "author", "home_services")
         #[serde(skip_serializing_if = "Option::is_none")]
         pub vertical: Option<String>,
+        /// Intake metadata captured at invite time (JSON string)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub intake_metadata: Option<String>,
     },
     "PartialServer"
 );
@@ -163,6 +166,7 @@ impl Server {
             roles: HashMap::new(),
             system_messages: None,
             vertical: None,
+            intake_metadata: None,
         };
 
         let channels: Vec<Channel> = if create_default_channels {

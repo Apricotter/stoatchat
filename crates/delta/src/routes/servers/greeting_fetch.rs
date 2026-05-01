@@ -1,7 +1,8 @@
 use revolt_database::{
     util::{permissions::DatabasePermissionQuery, reference::Reference},
-    Database, User,
+    AbstractGreetings, Database, User,
 };
+use revolt_permissions::PermissionQuery;
 use revolt_result::{create_error, Result};
 use rocket::{serde::json::Json, State};
 use serde::{Deserialize, Serialize};
@@ -18,6 +19,9 @@ pub struct GreetingResponse {
     pub vertical: String,
     /// Greeting message template; {username} is substituted by the caller if known
     pub message: String,
+    /// Intake metadata captured at invite time (arbitrary JSON object)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<serde_json::Value>,
 }
 
 /// # Fetch Server Greeting
@@ -39,9 +43,14 @@ pub async fn fetch_greeting(
 
     let vertical = server.vertical.as_deref().unwrap_or("default");
     let greeting = db.fetch_greeting(Some(vertical)).await?;
+    let metadata = server
+        .intake_metadata
+        .as_deref()
+        .and_then(|s| serde_json::from_str(s).ok());
 
     Ok(Json(GreetingResponse {
         vertical: greeting.vertical,
         message: greeting.message,
+        metadata,
     }))
 }

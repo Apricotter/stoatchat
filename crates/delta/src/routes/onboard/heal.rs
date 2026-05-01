@@ -1,7 +1,7 @@
 use authifier::models::Session;
 use revolt_database::{Channel, Database, Member, Message, Server, User, AMQP};
 use revolt_models::v0::{self, DataCreateServer, DataCreateServerChannel, LegacyServerChannelType, MessageAuthor};
-use revolt_result::{create_error, Result};
+use revolt_result::Result;
 use ulid::Ulid;
 
 use rocket::{serde::json::Json, State};

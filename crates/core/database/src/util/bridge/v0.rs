@@ -768,6 +768,7 @@ impl From<crate::Server> for Server {
             analytics: value.analytics,
             discoverable: value.discoverable,
             vertical: value.vertical,
+            intake_metadata: None,
         }
     }
 }
@@ -797,6 +798,7 @@ impl From<Server> for crate::Server {
             analytics: value.analytics,
             discoverable: value.discoverable,
             vertical: value.vertical,
+            intake_metadata: None,
         }
     }
 }
@@ -851,6 +853,7 @@ impl From<PartialServer> for crate::PartialServer {
             analytics: value.analytics,
             discoverable: value.discoverable,
             vertical: value.vertical,
+            intake_metadata: None,
         }
     }
 }
