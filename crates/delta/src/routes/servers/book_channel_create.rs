@@ -43,11 +43,7 @@ pub async fn create_book_channel(
 
     let channel = Channel::create_server_channel(db, &mut server, data.into_inner(), true).await?;
 
-    let channel_id = match &channel {
-        v0::Channel::TextChannel { id, .. } => id.clone(),
-        v0::Channel::VoiceChannel { id, .. } => id.clone(),
-        _ => return Err(create_error!(InternalError)),
-    };
+    let channel_id = channel.id().to_string();
 
     Ok(Json(BookChannelResponse {
         channel_id,
