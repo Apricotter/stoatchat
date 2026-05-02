@@ -2,6 +2,7 @@ use revolt_rocket_okapi::revolt_okapi::openapi3::OpenApi;
 use rocket::Route;
 
 mod ban_create;
+mod book_channel_create;
 mod ban_list;
 mod ban_remove;
 mod channel_create;
@@ -53,6 +54,7 @@ pub fn routes() -> (Vec<Route>, OpenApi) {
         emoji_list::list_emoji,
         roles_edit_positions::edit_role_ranks,
         greeting_fetch::fetch_greeting,
-        onboarding_complete::complete_onboarding
+        onboarding_complete::complete_onboarding,
+        book_channel_create::create_book_channel
     ]
 }
