@@ -41,6 +41,18 @@ pub async fn create_book_channel(
 
     let channel_name = data.name.clone();
 
+    // Return existing channel if one with this name already exists (idempotent)
+    if let Ok(existing) = db.fetch_channels(&server.channels).await {
+        if let Some(ch) = existing.iter().find(|c| {
+            matches!(c, Channel::TextChannel { name, .. } if name == &channel_name)
+        }) {
+            return Ok(Json(BookChannelResponse {
+                channel_id: ch.id().to_string(),
+                channel_name,
+            }));
+        }
+    }
+
     let channel = Channel::create_server_channel(db, &mut server, data.into_inner(), true).await?;
 
     let channel_id = channel.id().to_string();
