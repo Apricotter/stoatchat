@@ -75,7 +75,13 @@ impl MongoDb {
                     // Hard fail on invalid documents
                     Some(s.unwrap())
                 } else {
-                    s.ok()
+                    match s {
+                        Ok(v) => Some(v),
+                        Err(e) => {
+                            log::error!("[mongodb::find] deserialization error: {e:?}");
+                            None
+                        }
+                    }
                 }
             })
             .collect::<Vec<T>>()
