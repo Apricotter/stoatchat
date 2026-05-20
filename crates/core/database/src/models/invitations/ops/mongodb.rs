@@ -35,6 +35,14 @@ impl AbstractInvitations for MongoDb {
             .await)
     }
 
+    async fn fetch_invitation_by_user(&self, user_id: &str) -> Result<Invitation> {
+        self.col::<Invitation>(COL)
+            .find_one(doc! { "used_by": user_id })
+            .await
+            .map_err(|_| create_database_error!("find", COL))?
+            .ok_or_else(|| create_error!(NotFound))
+    }
+
     async fn mark_invitation_used(&self, code: &str, user_id: &str) -> Result<()> {
         self.col::<Invitation>(COL)
             .update_one(

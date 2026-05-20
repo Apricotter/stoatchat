@@ -30,6 +30,15 @@ impl AbstractInvitations for ReferenceDb {
         Ok(invitations.values().cloned().collect())
     }
 
+    async fn fetch_invitation_by_user(&self, user_id: &str) -> Result<Invitation> {
+        let invitations = self.invitations.lock().await;
+        invitations
+            .values()
+            .find(|inv| inv.used_by.as_deref() == Some(user_id))
+            .cloned()
+            .ok_or_else(|| create_error!(NotFound))
+    }
+
     async fn mark_invitation_used(&self, code: &str, user_id: &str) -> Result<()> {
         let mut invitations = self.invitations.lock().await;
         if let Some(inv) = invitations.get_mut(code) {
